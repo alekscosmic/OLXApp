@@ -8,4 +8,12 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!--Criar style para o botão acessar -->
+    <style name="botaoPadrao" parent="Theme.AppCompat.Light">
+    <item name="colorControlHighlight">#D854F3</item>
+    <item name="colorButtonNormal">@color/colorPrimary</item>
+    <item name="android:color">@android:color/white</item>
+
+    </style>
+
 </resources>
