@@ -48,6 +48,12 @@ dependencies {
 
     // Adicionado para o SearchView
     implementation 'com.miguelcatalan:materialsearchview:1.4.0'
+
+    //Dependência mascara moeda
+    implementation 'com.github.BlacKCaT27:CurrencyEditText:2.0.2'
+
+    //Dependência mascara telefone
+    implementation 'com.github.santalu:mask-edittext:1.1.1'
 }
 
 apply plugin: 'com.google.gms.google-services'
