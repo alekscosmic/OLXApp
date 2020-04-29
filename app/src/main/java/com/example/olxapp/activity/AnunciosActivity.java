@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.example.olxapp.R;
 import com.example.olxapp.adapter.AdapterAnuncios;
@@ -42,6 +43,8 @@ public class AnunciosActivity extends AppCompatActivity {
     private DatabaseReference anunciosPublicosRef;
     private AlertDialog dialog;
     private String filtroEstado = "";
+    private String filtroCategoria = "";
+    private boolean filtrandoPorEstado = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +96,7 @@ public class AnunciosActivity extends AppCompatActivity {
                 //Recuperando o que foi selecionado pelo usuario
                 filtroEstado = spinnerEstado.getSelectedItem().toString();
                 recuperarAnunciosPorEstado();
+                filtrandoPorEstado = true;
 
             }
         });
@@ -105,6 +109,94 @@ public class AnunciosActivity extends AppCompatActivity {
         AlertDialog dialog = dialogEstado.create();
         dialog.show();
     }
+
+    public void filtrarPorCategoria(View view){
+
+        if(filtrandoPorEstado == true){
+
+            AlertDialog.Builder dialogEstado = new AlertDialog.Builder(this);
+            dialogEstado.setTitle("Selecione a categoria desejada ");
+
+            //Configurar spinner
+            View viewSpinner = getLayoutInflater().inflate(R.layout.dialog_spinner,null);
+
+            //Configura spinner de categorias
+            final Spinner spinnerCategoria = viewSpinner.findViewById(R.id.spinnerFiltro);
+
+            String[] estados = getResources().getStringArray(R.array.categorias);
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                    this, android.R.layout.simple_spinner_item,
+                    estados
+            );
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerCategoria.setAdapter(adapter);
+
+            dialogEstado.setView(viewSpinner);
+
+            dialogEstado.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    //Recuperando o que foi selecionado pelo usuario
+                    filtroCategoria = spinnerCategoria.getSelectedItem().toString();
+                    recuperarAnunciosPorCategoria();
+
+
+                }
+            });
+            dialogEstado.setNegativeButton("cancelar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                }
+            });
+            AlertDialog dialog = dialogEstado.create();
+            dialog.show();
+            
+        }else{
+            Toast.makeText(this, "Escolha primeiro uma estado! ", Toast.LENGTH_SHORT).show();
+        }
+        
+
+    }
+
+    public void recuperarAnunciosPorCategoria(){
+
+        dialog = new SpotsDialog.Builder()
+                .setContext(this)
+                .setMessage("Carregando Anúncio")
+                .setCancelable(false)
+                .build();
+        dialog.show();
+
+        //Configura nó por categoria
+        anunciosPublicosRef = ConfiguracaoFirebase.getFirebase()
+                .child("anuncios")
+                .child(filtroEstado)
+                .child(filtroEstado);
+
+        anunciosPublicosRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listaAnuncios.clear();
+                for(DataSnapshot anuncios: dataSnapshot.getChildren()){
+
+                    Anuncio anuncio = anuncios.getValue(Anuncio.class);
+                    listaAnuncios.add(anuncio);
+                }
+                Collections.reverse(listaAnuncios);
+                adapterAnuncios.notifyDataSetChanged();
+                dialog.dismiss();
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
 
     public void recuperarAnunciosPorEstado(){
 

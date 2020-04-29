@@ -33,6 +33,7 @@
             style="?attr/buttonBarButtonStyle"
             android:layout_width="197dp"
             android:layout_height="wrap_content"
+            android:onClick="filtrarPorCategoria"
             android:text="Categoria"
             android:textColor="@color/colorPrimary" />
     </LinearLayout>
