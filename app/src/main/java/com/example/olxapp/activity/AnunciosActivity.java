@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import com.example.olxapp.R;
 import com.example.olxapp.adapter.AdapterAnuncios;
 import com.example.olxapp.helper.ConfiguracaoFirebase;
+import com.example.olxapp.helper.RecyclerItemClickListener;
 import com.example.olxapp.model.Anuncio;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -66,6 +68,32 @@ public class AnunciosActivity extends AppCompatActivity {
         recyclerAnunciosPublicos.setAdapter(adapterAnuncios);
 
         recuperarAnunciosPublicos();
+
+        //Aplicar evento de clique
+        recyclerAnunciosPublicos.addOnItemTouchListener(new RecyclerItemClickListener(
+                this,
+                recyclerAnunciosPublicos,
+                new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Anuncio anuncioSelecionado = listaAnuncios.get(position);
+                        //Agora podemos enviar o anuncio selecionado para a activity de DetalheProdutoActivity
+                        Intent i = new Intent(AnunciosActivity.this,DetalheProdutoActivity.class);
+                        i.putExtra("anuncioSelecionado",anuncioSelecionado);
+                        startActivity(i);
+                    }
+
+                    @Override
+                    public void onLongItemClick(View view, int position) {
+
+                    }
+
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                    }
+                }
+        ));
 
     }
 
