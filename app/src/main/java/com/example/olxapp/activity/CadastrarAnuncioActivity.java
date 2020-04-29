@@ -2,11 +2,12 @@ package com.example.olxapp.activity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -37,6 +38,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import dmax.dialog.SpotsDialog;
+
 public class CadastrarAnuncioActivity extends AppCompatActivity 
 implements View.OnClickListener {
 
@@ -47,6 +50,7 @@ implements View.OnClickListener {
     private Spinner campoEstado, campoCategoria;
     private Anuncio anuncio;
     private StorageReference storage;
+    private AlertDialog dialog;
 
     private String[] permissoes = new String[]{
             Manifest.permission.READ_EXTERNAL_STORAGE
@@ -69,9 +73,15 @@ implements View.OnClickListener {
         carregarDadosSpinner();
 
     }
-
-
     public void salvarAnuncio() {
+
+        //Criando um alertDialog
+        dialog = new SpotsDialog.Builder()
+                .setContext(this)
+                .setMessage("Salvando Anúncio")
+                .setCancelable(false)
+                .build();
+        dialog.show();
 
       /*
       *Salvar imagem no Storage
@@ -106,6 +116,8 @@ implements View.OnClickListener {
                         if(totalFotos == listaURLFotos.size()){
                             anuncio.setFotos(listaURLFotos);
                             anuncio.salvar();
+                            dialog.dismiss(); // Fecha a dialog
+                            finish();//Fecha a activity
                         }
 
 
@@ -124,7 +136,7 @@ implements View.OnClickListener {
         String estado = campoEstado.getSelectedItem().toString();
         String categoria = campoCategoria.getSelectedItem().toString();
         String titulo = campoTitulo.getText().toString();
-        String valor = String.valueOf(campoValor.getRawValue());
+        String valor = campoValor.getText().toString();
         String telefone = campoTelefone.getText().toString();
         String descricao = campoDescricao.getText().toString();
 
@@ -153,19 +165,16 @@ implements View.OnClickListener {
         String descricao = campoDescricao.getText().toString();
         */
        anuncio = configurarAnuncio();
-       /*
-        String fone = "";
-        if(campoTelefone.getRawText() != null){
-            fone = campoTelefone.getRawText().toString();
-        }
-        */
+        String valor = String.valueOf(campoValor.getRawValue());
+
+
         //Vrificando se os campos estão preenchidos
         if (listaFotosRecuperadas.size() != 0) {//Usuario precisa pelo menos adicionar uma imagem para salvar o anuncio
             if (!anuncio.getEstado().isEmpty()) {
                 if (!anuncio.getCategoria().isEmpty()) {
                     if (!anuncio.getTitulo().isEmpty()) {
-                        if (!anuncio.getValor().isEmpty() && !anuncio.getValor().equals("0")) {
-                           //if (!anuncio.getTelefone().isEmpty() && fone.length() >= 10) {
+                        if (!valor.isEmpty() && !valor.equals("0")) {
+                          // if (!anuncio.getTelefone().isEmpty() && fone.length() >= 10) {
                             if (!anuncio.getTelefone().isEmpty()) {
 
                                 if (!anuncio.getDescricao().isEmpty()) {
@@ -176,7 +185,7 @@ implements View.OnClickListener {
                                     exibirMensagemErro("Preencha o campo descrição!");
                                 }
                             } else {
-                                exibirMensagemErro("Preencha o campo telefone!");
+                                exibirMensagemErro("Preencha o campo telefone com todos os digitos!");
                             }
                         } else {
                             exibirMensagemErro("Preencha o campo valor!");

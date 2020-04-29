@@ -33,6 +33,18 @@ public class Anuncio {
                 .setValue(this);
 
     }
+    public void salvarAnuncioPublico() {
+
+
+        DatabaseReference anuncioRef = ConfiguracaoFirebase.getFirebase()
+                .child("anuncios");
+
+        anuncioRef.child(getEstado())
+                .child(getCategoria())
+                .child(getIdAnuncio())
+                .setValue(this);
+
+    }
 
     public String getIdAnuncio() {
         return idAnuncio;
