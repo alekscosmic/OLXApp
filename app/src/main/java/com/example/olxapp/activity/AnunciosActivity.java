@@ -5,11 +5,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 
 import com.example.olxapp.R;
 import com.example.olxapp.adapter.AdapterAnuncios;
@@ -37,7 +41,7 @@ public class AnunciosActivity extends AppCompatActivity {
     private List<Anuncio> listaAnuncios = new ArrayList<>();
     private DatabaseReference anunciosPublicosRef;
     private AlertDialog dialog;
-
+    private String filtroEstado = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +63,85 @@ public class AnunciosActivity extends AppCompatActivity {
         recyclerAnunciosPublicos.setAdapter(adapterAnuncios);
 
         recuperarAnunciosPublicos();
+
+    }
+
+    public void filtrarPorEstado(View view){
+
+        AlertDialog.Builder dialogEstado = new AlertDialog.Builder(this);
+        dialogEstado.setTitle("Selecione o estado desejado ");
+
+        //Configurar spinner
+        View viewSpinner = getLayoutInflater().inflate(R.layout.dialog_spinner,null);
+
+        //Configura spinner de estados
+        final Spinner spinnerEstado = viewSpinner.findViewById(R.id.spinnerFiltro);
+
+        String[] estados = getResources().getStringArray(R.array.estados);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this, android.R.layout.simple_spinner_item,
+                estados
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerEstado.setAdapter(adapter);
+
+        dialogEstado.setView(viewSpinner);
+
+        dialogEstado.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //Recuperando o que foi selecionado pelo usuario
+                filtroEstado = spinnerEstado.getSelectedItem().toString();
+                recuperarAnunciosPorEstado();
+
+            }
+        });
+        dialogEstado.setNegativeButton("cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        AlertDialog dialog = dialogEstado.create();
+        dialog.show();
+    }
+
+    public void recuperarAnunciosPorEstado(){
+
+        dialog = new SpotsDialog.Builder()
+                .setContext(this)
+                .setMessage("Carregando Anúncio")
+                .setCancelable(false)
+                .build();
+        dialog.show();
+
+        //Configura nó por estado
+        anunciosPublicosRef = ConfiguracaoFirebase.getFirebase()
+                .child("anuncios")
+                .child(filtroEstado);
+
+        anunciosPublicosRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listaAnuncios.clear();
+                for(DataSnapshot categorias: dataSnapshot.getChildren()){
+                    for(DataSnapshot anuncios: categorias.getChildren()){
+
+                        Anuncio anuncio = anuncios.getValue(Anuncio.class);
+                        listaAnuncios.add(anuncio);
+                    }
+                }
+                Collections.reverse(listaAnuncios);
+                adapterAnuncios.notifyDataSetChanged();
+                dialog.dismiss();
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
     }
 
@@ -144,8 +227,6 @@ public class AnunciosActivity extends AppCompatActivity {
     public void inicializarComponentes(){
 
         recyclerAnunciosPublicos = findViewById(R.id.recyclerAnunciosPublicos);
-       // buttonRegiao = findViewById(R.id.buttonRegiao);
-       // buttonCategoria = findViewById(R.id.buttonCategoria);
 
     }
 }

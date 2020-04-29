@@ -18,6 +18,7 @@
             style="?attr/buttonBarButtonStyle"
             android:layout_width="197dp"
             android:layout_height="wrap_content"
+            android:onClick="filtrarPorEstado"
             android:text="Região"
             android:textColor="@color/colorPrimary" />
 
