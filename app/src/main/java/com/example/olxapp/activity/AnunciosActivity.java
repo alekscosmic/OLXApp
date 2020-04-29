@@ -172,7 +172,7 @@ public class AnunciosActivity extends AppCompatActivity {
         anunciosPublicosRef = ConfiguracaoFirebase.getFirebase()
                 .child("anuncios")
                 .child(filtroEstado)
-                .child(filtroEstado);
+                .child(filtroCategoria);
 
         anunciosPublicosRef.addValueEventListener(new ValueEventListener() {
             @Override
